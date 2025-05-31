@@ -1,7 +1,6 @@
 import * as React from "react";
-import { Command, File, Inbox } from "lucide-react";
+import { Command, Calendar, Table2, Search } from "lucide-react";
 
-import { Label } from "@/components/ui/label";
 import {
   Sidebar,
   SidebarContent,
@@ -14,29 +13,45 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Button } from "./ui/button";
+import { useNavigate } from "@tanstack/react-router";
 
 // This is sample data
 const data = {
   navMain: [
     {
       title: "Plans",
-      url: "#",
-      icon: Inbox,
+      url: "/",
+      icon: Table2,
       isActive: true,
     },
     {
       title: "Schedules",
-      url: "#",
-      icon: File,
+      url: "/schedules",
+      icon: Calendar,
       isActive: false,
+    },
+  ],
+  classes: [
+    {
+      code: "COP3503",
+      name: "Programming Fundamentals 1",
+      professor: "Jill Goslinga",
+      credits: 3,
+      time: "M,W,F (11:45 AM - 12:35 PM)",
+    },
+    {
+      code: "COP3503",
+      name: "Programming Fundamentals 1",
+      professor: "Jill Goslinga",
+      credits: 3,
+      time: "M,W,F (11:45 AM - 12:35 PM)",
     },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  // Note: I'm using state to show active item.
-  // IRL you should use the url/router.
-  const [activeItem, setActiveItem] = React.useState(data.navMain[0]);
+  const navigate = useNavigate();
 
   return (
     <Sidebar
@@ -44,9 +59,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row"
       {...props}
     >
-      {/* This is the first sidebar */}
-      {/* We disable collapsible and adjust width to icon. */}
-      {/* This will make the sidebar appear as icons. */}
       <Sidebar
         side="left"
         collapsible="none"
@@ -61,8 +73,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <Command className="size-4" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Acme Inc</span>
-                    <span className="truncate text-xs">Enterprise</span>
+                    <span className="truncate font-semibold">Timewise</span>
                   </div>
                 </a>
               </SidebarMenuButton>
@@ -80,8 +91,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         children: item.title,
                         hidden: false,
                       }}
-                      onClick={() => setActiveItem(item)}
-                      isActive={activeItem?.title === item.title}
+                      onClick={() => {
+                        navigate({ to: item.url });
+                      }}
+                      // isActive={activeItem?.title === item.title}
                       className="px-2.5 md:px-2"
                     >
                       <item.icon />
@@ -100,18 +113,46 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <Sidebar side="left" collapsible="none" className="hidden flex-1 md:flex">
         <SidebarHeader className="gap-3.5 border-b p-4">
           <div className="flex w-full items-center justify-between">
-            <div className="text-base font-medium text-foreground">
+            {/* <div className="text-base font-medium text-foreground">
               {activeItem?.title}
-            </div>
-            <Label className="flex items-center gap-2 text-sm">
-              <span>Unreads</span>
-            </Label>
+            </div> */}
           </div>
           <SidebarInput placeholder="Type to search..." />
+          <Button size="sm">
+            <Search /> Search
+          </Button>
         </SidebarHeader>
         <SidebarContent>
-          <SidebarGroup className="px-0">
-            <SidebarGroupContent></SidebarGroupContent>
+          <SidebarGroup className="p-1">
+            <SidebarGroupContent>
+              {data.classes.map((c) => (
+                <div
+                  className="flex items-start justify-between bg-gray-200 p-2 rounded-md mb-2 relative"
+                  key={c.code}
+                  style={{
+                    minHeight: "100px",
+                  }}
+                >
+                  <div>
+                    <div className="flex items-center italic">
+                      <p className="text-sm ">{c.code}</p>
+                      <p className="px-2">|</p>
+                      <p className="text-sm">{c.professor}</p>
+                    </div>
+                    <p className="py-2">{c.name}</p>
+                    <p>{c.time}</p>
+                  </div>
+                  <div className="absolute right-2 top-1">
+                    <p className="text-sm font-bold text-right py-1">
+                      Credits: {c.credits}
+                    </p>
+                  </div>
+                  <div className="text-sm flex justify-end pb-1 absolute right-2 bottom-2">
+                    <Button size="sm">+ Add</Button>
+                  </div>
+                </div>
+              ))}
+            </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
       </Sidebar>

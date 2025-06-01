@@ -2,6 +2,9 @@
   display: grid;
   grid-template-columns: 40px repeat(5, 1fr);
   grid-template-rows: 30px;
+  /* I'm copying the approach that ONE.UF uses to render class schedules.
+  I think this CSS method works really because it provides responsiveness and is easy to create grid.
+  I can't think of something better but if there is a better solution, please lmk! */
   grid-template-areas: 
     ". Mon Tue Wed Thu Fri"
     "hour1. . . . ."

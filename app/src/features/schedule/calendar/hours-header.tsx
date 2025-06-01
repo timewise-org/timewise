@@ -13,20 +13,15 @@ function formatTime(i: number) {
 }
 
 type HoursHeaderProps = {
-  range?: number[];
+  timeRange: {
+    earliest: number;
+    latest: number;
+  };
 };
 
-const HoursHeader = ({ range }: HoursHeaderProps) => {
-  let earliestTime = 1;
-  let latestTime = 24;
-
-  if (range?.length === 2) {
-    earliestTime = range[0] === 1 ? range[0] : range[0] - 1;
-    latestTime = range[1] === 24 ? range[1] : range[1] + 1;
-  }
-
+const HoursHeader = ({ timeRange }: HoursHeaderProps) => {
   const hoursHeader = Array.from({ length: NUM_HOURS_PER_DAY }, (_, i) => {
-    if (i + 1 >= earliestTime && i + 1 <= latestTime) {
+    if (i + 1 >= timeRange.earliest && i + 1 <= timeRange.latest) {
       return (
         <div
           key={i}

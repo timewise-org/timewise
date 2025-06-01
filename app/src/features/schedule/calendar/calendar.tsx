@@ -3,53 +3,28 @@ import { DaysHeader } from "./days-header";
 import { Block } from "./block";
 import { HoursHeader } from "./hours-header";
 import { NUM_HOURS_PER_DAY, WEEK_DAYS } from "./constants";
+import { CourseBlock } from "./course-block";
+import type { ScheduleCourse } from "@/features/_shared/types";
 import "./styles.css";
 
-type BaseScheduleClass = {
-  id: number;
-  code: string;
-  name: string;
-  credits: number;
-  instructors: string[];
-  isOnline: boolean;
-
-  // TODO: add class locations, meeting times, exam dates?, startDate, endDate
-};
-
 type CalendarProps = {
-  classes: any[];
+  courses: ScheduleCourse[];
+  timeRange: {
+    earliest: number;
+    latest: number;
+  };
 };
 
 const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
-  ({ classes }, ref) => {
-    const getEarliestAndLatestClassTimes = () => {
-      let earliestTimeSoFar = 1;
-      let latestTimeSoFar = 1;
-
-      classes.forEach((c) => {
-        if (!c.online) {
-          // @ts-ignore
-          if (c.periodStartNum < earliestTimeSoFar) {
-            // @ts-ignore
-            earliestTimeSoFar = c.periodStartNum;
-            // @ts-ignore
-          } else if (c.periodStartNum > latestTimeSoFar) {
-            // @ts-ignore
-            latestTimeSoFar = c.periodStartNum;
-          }
-        }
-      });
-
-      return [earliestTimeSoFar, latestTimeSoFar];
+  ({ courses, timeRange }, ref) => {
+    const renderHeader = () => {
+      return (
+        <>
+          <HoursHeader timeRange={timeRange} />
+          <DaysHeader />
+        </>
+      );
     };
-
-    const getOnlineClasses = () => {
-      // @ts-ignore
-      return classes.filter((c) => c.online);
-    };
-
-    const timeRangeToRender = getEarliestAndLatestClassTimes();
-    const onlineClasses = getOnlineClasses();
 
     const renderBlocks = () => {
       const blocks = Array.from(
@@ -57,37 +32,34 @@ const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
         (_, idx) => {
           // the combination of the period start and day are unique for every classes
           const hour = (idx % NUM_HOURS_PER_DAY) + 1;
-          const period = `hour${hour}`;
-          const day = `${WEEK_DAYS[idx % WEEK_DAYS.length]}`;
+          const day = WEEK_DAYS[idx % WEEK_DAYS.length];
 
-          let earliestTime = 1;
-          let latestTime = 24;
+          const course = courses.find((c) => {
+            if (!c.online) {
+              return (
+                c.time.start === idx % NUM_HOURS_PER_DAY &&
+                c.time.days.includes(day)
+              );
+            }
+          });
 
-          if (timeRangeToRender?.length === 2) {
-            earliestTime =
-              timeRangeToRender[0] === 1
-                ? timeRangeToRender[0]
-                : timeRangeToRender[0] - 1;
-            latestTime =
-              timeRangeToRender[1] === 24
-                ? timeRangeToRender[1]
-                : timeRangeToRender[1] + 1;
+          // TODO: refactor how we calculate the hour and the timeRage
+          if (hour >= timeRange.earliest && hour <= timeRange.latest) {
+            return (
+              <Block key={idx} idx={idx}>
+                {course && <CourseBlock course={course} />}
+              </Block>
+            );
           }
-
-          const c = classes.find(
-            (c) => c.periodStart === period && c.day === day
-          );
-
-          if (hour >= earliestTime && hour <= latestTime) {
-            return <Block key={idx} idx={idx} classBlock={c} />;
-          }
-        }
+        },
       );
 
       return blocks;
     };
 
-    const renderOnlineClasses = () => {
+    const renderOnlineCourses = () => {
+      const onlineClasses = courses.filter((c) => c.online);
+
       return (
         onlineClasses.length > 0 && (
           <div className="flex w-full text-sm">
@@ -146,16 +118,14 @@ const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
         }}
       >
         <div className="calendar-grid w-full text-sm" ref={ref}>
+          {renderHeader()}
           {renderBlocks()}
-
-          <HoursHeader range={timeRangeToRender} />
-          <DaysHeader />
         </div>
 
-        {renderOnlineClasses()}
+        {renderOnlineCourses()}
       </div>
     );
-  }
+  },
 );
 
 export { Calendar };

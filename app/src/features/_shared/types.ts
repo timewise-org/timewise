@@ -13,7 +13,7 @@ export type Meeting = {
   };
 };
 
-type InPersonCourse = {
+export type InPersonCourse = {
   id: string;
   code: string;
   online: false;
@@ -35,7 +35,7 @@ type InPersonCourse = {
   };
 };
 
-type OnlineCourse = {
+export type OnlineCourse = {
   id: string;
   code: string;
   online: true;

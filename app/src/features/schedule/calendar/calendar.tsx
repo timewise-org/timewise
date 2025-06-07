@@ -4,7 +4,7 @@ import { Block } from "./block";
 import { HoursHeader, type TimeRange } from "./hours-header";
 import { NUM_HOURS_PER_DAY, WEEK_DAYS } from "./constants";
 import { CourseBlock } from "./course-block";
-import type { ScheduleCourse } from "@/features/_shared/types";
+import type { InPersonCourse, ScheduleCourse } from "@/features/_shared/types";
 import { OnlineSection } from "./online-section";
 import "./styles.css";
 
@@ -39,14 +39,10 @@ const Blocks = ({ courses, timeRange }: BlocksProps) => {
       const hour = idx % NUM_HOURS_PER_DAY;
       const day = WEEK_DAYS[idx % WEEK_DAYS.length];
 
-      const course = courses.find((c) => {
-        if (!c.online) {
-          return (
-            c.time.start === idx % NUM_HOURS_PER_DAY &&
-            c.time.days.includes(day)
-          );
-        }
-      });
+      const course = courses.find(
+        (c): c is InPersonCourse =>
+          !c.online && c.time.start === hour && c.time.days.includes(day),
+      );
 
       if (hour >= timeRange.start && hour <= timeRange.end) {
         return (

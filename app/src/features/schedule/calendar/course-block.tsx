@@ -1,7 +1,7 @@
-import type { ScheduleCourse } from "@/features/_shared/types";
+import type { InPersonCourse } from "@/features/_shared/types";
 
 type CourseBlockProps = {
-  course: ScheduleCourse;
+  course: InPersonCourse;
 };
 
 const CourseBlock = ({ course }: CourseBlockProps) => {

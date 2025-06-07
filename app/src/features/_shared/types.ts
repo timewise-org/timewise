@@ -13,34 +13,38 @@ export type Meeting = {
   };
 };
 
-export type ScheduleCourse = {
+type InPersonCourse = {
   id: string;
   code: string;
-  online: boolean;
-
+  online: false;
   time: {
     days: DayOfWeek[];
     start: number;
     end: number;
-
     display: string;
   };
-
   location: {
     building: string;
     room: string;
     display: string;
   };
+  color: {
+    bg: string;
+    hover: string;
+    side: string;
+  };
+};
 
-  // meetings array will be empty if class is online
-  //   meetings: Meeting[];
+type OnlineCourse = {
+  id: string;
+  code: string;
+  online: true;
 
   color: {
     bg: string;
     hover: string;
     side: string;
   };
-
-  // the rest of the information about the course can be loaded
-  // on demand if the student requests it.
 };
+
+export type ScheduleCourse = InPersonCourse | OnlineCourse;

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Calendar } from "@/features/schedule/calendar";
 import type { ScheduleCourse } from "@/features/_shared/types";
+import { getStartingAndEndingCourseTimes } from "@/features/schedule/calendar/utils";
 
 export const Route = createFileRoute("/")({
   component: App,
@@ -59,7 +60,7 @@ function App() {
   //     },
   //   },
   // ];
-  const classes: ScheduleCourse[] = [
+  const courses: ScheduleCourse[] = [
     {
       id: "1",
       code: "MAC2313",
@@ -67,8 +68,8 @@ function App() {
 
       time: {
         days: ["Mon", "Wed"],
-        start: 13,
-        end: 15,
+        start: 0,
+        end: 3,
         display: "9AM - 10AM",
       },
 
@@ -108,7 +109,6 @@ function App() {
         side: "#ffa1ad",
       },
     },
-    // @ts-ignore
     {
       id: "3",
       code: "ENT3003",
@@ -120,7 +120,7 @@ function App() {
         side: "#7bf1a8",
       },
     },
-    // @ts-ignore
+
     {
       id: "4",
       code: "EGN3032",
@@ -133,54 +133,11 @@ function App() {
     },
   ];
 
-  const getEarliestAndLatestClassTimes = () => {
-    if (classes.length >= 0) {
-      return [1, 24];
-    }
-
-    let earliestTimeSoFar: number;
-    let latestTimeSoFar: number;
-
-    classes.forEach((c) => {
-      if (!c.online) {
-        if (c.time.start < earliestTimeSoFar || !earliestTimeSoFar) {
-          earliestTimeSoFar = c.time.start;
-        } else if (c.time.start > latestTimeSoFar || !latestTimeSoFar) {
-          const length = c.time.end - c.time.start;
-          if (length >= 2) {
-            latestTimeSoFar = c.time.start + length;
-          } else {
-            latestTimeSoFar = c.time.start;
-          }
-        }
-      }
-    });
-
-    // @ts-ignore
-    return [earliestTimeSoFar, latestTimeSoFar];
-  };
-
-  // TODO: refactor this
-  let earliestTime = 1;
-  let latestTime = 24;
-
-  const timeRange = getEarliestAndLatestClassTimes();
-
-  if (timeRange?.length === 2) {
-    earliestTime = timeRange[0] === 1 ? timeRange[0] : timeRange[0] - 1;
-    latestTime = timeRange[1] === 24 ? timeRange[1] : timeRange[1] + 1;
-  }
-
-  console.log(earliestTime, latestTime);
-
   return (
     <div>
       <Calendar
-        courses={classes}
-        timeRange={{
-          earliest: earliestTime,
-          latest: latestTime,
-        }}
+        courses={courses}
+        timeRange={getStartingAndEndingCourseTimes(courses)}
       />
     </div>
   );

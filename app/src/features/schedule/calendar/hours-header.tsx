@@ -1,36 +1,29 @@
 import { NUM_HOURS_PER_DAY } from "./constants";
+import { convertMilitaryToStandard } from "./utils";
 
-function formatTime(i: number) {
-  if (i === 0) {
-    return "12 AM";
-  } else {
-    if (i <= 12) {
-      return `${i} AM`;
-    } else {
-      return `${i - 12} PM`;
-    }
-  }
-}
+export type TimeRange = {
+  start: number;
+  end: number;
+};
 
 type HoursHeaderProps = {
-  timeRange: {
-    earliest: number;
-    latest: number;
-  };
+  timeRange: TimeRange;
 };
 
 const HoursHeader = ({ timeRange }: HoursHeaderProps) => {
   const hoursHeader = Array.from({ length: NUM_HOURS_PER_DAY }, (_, i) => {
-    if (i + 1 >= timeRange.earliest && i + 1 <= timeRange.latest) {
+    if (i >= timeRange.start && i <= timeRange.end) {
       return (
         <div
           key={i}
           className="border-dashed border-r-1 border-calendar-border text-[10px] sm:text-xs"
           style={{
-            gridArea: `hour${i + 1}`,
+            gridArea: `hour${i}`,
           }}
         >
-          <span className="text-muted-foreground">{formatTime(i)}</span>
+          <span className="text-muted-foreground">
+            {convertMilitaryToStandard(i)}
+          </span>
         </div>
       );
     }

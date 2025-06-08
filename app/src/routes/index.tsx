@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Calendar } from "@/features/schedule/calendar";
+import { Calendar } from "@/features/schedule/components/calendar";
 import type { ScheduleCourse } from "@/features/_shared/types";
-import { getStartingAndEndingCourseTimes } from "@/features/schedule/calendar/utils";
+import { getStartingAndEndingCourseTimes } from "@/features/schedule/components/calendar/utils";
 
 export const Route = createFileRoute("/")({
   component: App,
@@ -68,8 +68,8 @@ function App() {
 
       time: {
         days: ["Mon", "Wed"],
-        start: 0,
-        end: 3,
+        start: 3,
+        end: 4,
         display: "9AM - 10AM",
       },
 

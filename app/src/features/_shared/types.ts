@@ -48,3 +48,34 @@ export type OnlineCourse = {
 };
 
 export type ScheduleCourse = InPersonCourse | OnlineCourse;
+
+export type Course = {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+
+  credits: {
+    min: number;
+    max: number;
+    display: string;
+  };
+};
+
+export type Semester = {
+  courses: Course[];
+};
+
+export type Semesters = {
+  fall: Semester;
+  spring: Semester;
+  summer: Semester;
+};
+
+export type YearPlan = {
+  isShowing: boolean;
+
+  semesters: Semesters;
+};
+
+export type FourYearPlan = YearPlan[];

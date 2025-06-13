@@ -9,7 +9,7 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
     <div
       className="flex absolute w-full cursor-pointer z-2"
       style={{
-        height: `${76 * (course.time.end - course.time.start) - 1}px`,
+        height: `${60 * (course.time.end - course.time.start) - 1}px`,
         backgroundColor: course.color.bg,
       }}
       onMouseEnter={(e) => {
@@ -20,7 +20,7 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
       }}
     >
       <div
-        className="w-1 h-full"
+        className="w-[3px] h-full"
         style={{
           backgroundColor: course.color.side,
         }}

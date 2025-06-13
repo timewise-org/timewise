@@ -125,3 +125,20 @@ export const OnlineCourses: Story = {
     timeRange: getStartingAndEndingCourseTimes(onlineCourses),
   },
 };
+
+export const CompactSchedule: Story = {
+  args: {
+    courses,
+    timeRange: getStartingAndEndingCourseTimes(courses),
+    compact: true,
+  },
+};
+
+export const TinySchedule: Story = {
+  args: {
+    courses: [],
+    timeRange: getStartingAndEndingCourseTimes([]),
+    tiny: true,
+    compact: true,
+  },
+};

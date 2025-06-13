@@ -1,2 +1,4 @@
-work on view course info in four year plan
-fix scrollbar shifting content using a custom library
+work on builder filters
+    - get exclude days to work
+    - when excluding days, the corresponding days in the calendar are greyed out
+    - get exclude individuals blocks of times to work

@@ -7,31 +7,51 @@ import { CourseBlock } from "./course-block";
 import type { InPersonCourse, ScheduleCourse } from "@/features/_shared/types";
 import { OnlineSection } from "./online-section";
 import "./styles.css";
+import clsx from "clsx";
 
 type CalendarProps = {
   courses: ScheduleCourse[];
   timeRange: TimeRange;
+  compact?: boolean;
+  tiny?: boolean;
 };
 
 type HeaderProps = {
   timeRange: TimeRange;
+  tiny?: boolean;
 };
 
 type BlocksProps = {
   timeRange: TimeRange;
   courses: ScheduleCourse[];
+  compact?: boolean;
 };
 
-const Header = ({ timeRange }: HeaderProps) => {
+const Header = ({ timeRange, tiny }: HeaderProps) => {
   return (
     <>
       <HoursHeader timeRange={timeRange} />
-      <DaysHeader />
+      <DaysHeader tiny={tiny} />
     </>
   );
 };
 
-const Blocks = ({ courses, timeRange }: BlocksProps) => {
+const Blocks = ({ courses, timeRange, compact = false }: BlocksProps) => {
+  // TODO: refactor and make it configurable
+  const courseTimes: number[] = [];
+
+  if (compact) {
+    courses.forEach((course) => {
+      if (!course.online) {
+        const courseLength = course.time.end - course.time.start;
+
+        for (let i = 0; i < courseLength; i++) {
+          courseTimes.push(course.time.start + i);
+        }
+      }
+    });
+  }
+
   const blocks = Array.from(
     { length: WEEK_DAYS.length * NUM_HOURS_PER_DAY },
     (_, idx) => {
@@ -46,7 +66,12 @@ const Blocks = ({ courses, timeRange }: BlocksProps) => {
 
       if (hour >= timeRange.start && hour <= timeRange.end) {
         return (
-          <Block key={idx} hour={hour} day={day}>
+          <Block
+            key={idx}
+            hour={hour}
+            day={day}
+            collapsed={compact && courseTimes.indexOf(hour) === -1}
+          >
             {course && <CourseBlock course={course} />}
           </Block>
         );
@@ -58,17 +83,20 @@ const Blocks = ({ courses, timeRange }: BlocksProps) => {
 };
 
 const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
-  ({ courses, timeRange }, ref) => {
+  ({ courses, timeRange, compact, tiny }, ref) => {
     return (
       <div
-        className="mx-auto"
+        // className="mx-auto"
         style={{
-          maxWidth: "900px",
+          maxWidth: compact ? "600px" : "900px",
         }}
       >
-        <div className="calendar-grid w-full text-sm" ref={ref}>
-          <Header timeRange={timeRange} />
-          <Blocks courses={courses} timeRange={timeRange} />
+        <div
+          className={clsx("calendar-grid w-full text-sm", tiny && "tiny")}
+          ref={ref}
+        >
+          <Header timeRange={timeRange} tiny={tiny} />
+          <Blocks courses={courses} timeRange={timeRange} compact={compact} />
         </div>
 
         <OnlineSection courses={courses} />

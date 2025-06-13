@@ -9,9 +9,10 @@ import { SearchResult } from "./search-result";
 type SearchProps = {
   isOpen: boolean;
   toggle: () => void;
+  onAddCourse?: (courseCode: string) => void;
 };
 
-function AddCourseDialog({ isOpen, toggle }: SearchProps) {
+function AddCourseDialog({ isOpen, toggle, onAddCourse }: SearchProps) {
   const [searchResults] = useState<Course[]>([
     {
       id: "1",
@@ -103,7 +104,7 @@ function AddCourseDialog({ isOpen, toggle }: SearchProps) {
     <Modal isOpen={isOpen} toggle={toggle}>
       <>
         <div className="p-2 space-y-3">
-          <p>Spring 2025</p>
+          <p>Pick a course</p>
           <div className="flex items-center rounded-md px-1 border-1">
             <SearchIcon />
             <Input
@@ -122,7 +123,11 @@ function AddCourseDialog({ isOpen, toggle }: SearchProps) {
         <div className="max-h-106 overflow-y-auto overflow-x-hidden">
           <div className="p-2">
             {searchResults.map((result) => (
-              <SearchResult key={result.id} result={result} />
+              <SearchResult
+                key={result.id}
+                result={result}
+                onAddCourse={onAddCourse}
+              />
             ))}
           </div>
         </div>

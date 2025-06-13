@@ -16,12 +16,12 @@ const HoursHeader = ({ timeRange }: HoursHeaderProps) => {
       return (
         <div
           key={i}
-          className="border-dashed border-r-1 border-calendar-border text-[10px] sm:text-xs"
+          className="flex items-start justify-end border-dashed border-r-1 border-calendar-border"
           style={{
             gridArea: `hour${i}`,
           }}
         >
-          <span className="text-muted-foreground">
+          <span className="text-muted-foreground text-[10px] relative -left-2">
             {convertMilitaryToStandard(i)}
           </span>
         </div>

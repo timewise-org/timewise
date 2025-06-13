@@ -1,6 +1,14 @@
 import type { ScheduleCourse } from "@/features/_shared/types";
 
 export const getStartingAndEndingCourseTimes = (courses: ScheduleCourse[]) => {
+  if (courses.length === 0) {
+    return {
+      start: 0,
+      end: 23,
+      extraRange: 0,
+    };
+  }
+
   const extraRange = 1;
   let startingTime = Infinity;
   let endingTime = -Infinity;

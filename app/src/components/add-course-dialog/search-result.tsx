@@ -2,9 +2,10 @@ import { ExternalLink } from "lucide-react";
 
 type SearchResultProps = {
   result: any;
+  onAddCourse?: (courseCode: string) => void;
 };
 
-const SearchResult = ({ result }: SearchResultProps) => {
+const SearchResult = ({ result, onAddCourse }: SearchResultProps) => {
   return (
     <div className="flex justify-between items-center relative border-slate-200 border rounded-md cursor-pointer mb-2 hover:bg-slate-100">
       <div className="p-2">
@@ -31,7 +32,10 @@ const SearchResult = ({ result }: SearchResultProps) => {
         </p>
       </div>
       <div className="absolute bottom-1 right-1 flex gap-2 items-center">
-        <button className="rounded-md bg-slate-100 px-3 py-2 hover:bg-slate-200 cursor-pointer">
+        <button
+          onClick={() => onAddCourse?.(result.code)}
+          className="rounded-md bg-slate-100 px-3 py-2 hover:bg-slate-200 cursor-pointer"
+        >
           + Add
         </button>
       </div>

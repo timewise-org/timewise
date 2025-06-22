@@ -1,4 +1,3 @@
 work on builder filters
-    - get exclude days to work
-    - when excluding days, the corresponding days in the calendar are greyed out
-    - get exclude individuals blocks of times to work
+    - generate courses based on filters
+    - handle online courses as well

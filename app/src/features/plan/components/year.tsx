@@ -1,4 +1,4 @@
-import type { Semesters } from "@/features/_shared/types";
+import type { Semesters } from "@/types";
 import { useState } from "react";
 import { Semester } from "./semester";
 

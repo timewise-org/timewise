@@ -1,4 +1,4 @@
-import type { DayOfWeek } from "@/features/_shared/types";
+import type { DayOfWeek } from "@/types";
 import { WEEK_DAYS } from "./constants";
 import clsx from "clsx";
 

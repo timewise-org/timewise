@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Plan } from "..";
-import type { Course } from "@/features/_shared/types";
+import type { Course } from "@/types";
 
 const meta = {
   title: "Four Year Plan",
@@ -55,7 +55,6 @@ export const BasicFourYearPlan: Story = {
   args: {
     fourYearPlan: [
       {
-        isShowing: true,
         semesters: {
           fall: {
             courses,
@@ -69,7 +68,6 @@ export const BasicFourYearPlan: Story = {
         },
       },
       {
-        isShowing: true,
         semesters: {
           fall: {
             courses,

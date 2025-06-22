@@ -1,25 +1,36 @@
 import { expect, test, describe } from "vitest";
 import { getStartingAndEndingCourseTimes } from "../utils";
-import type { ScheduleCourse } from "@/features/_shared/types";
+import type { ScheduleCourse } from "@/types";
+import { DateTime } from "luxon";
+
+const formatString = "h:mm a";
+const dateTimeOpts = {
+  zone: "utc",
+};
 
 const courses: ScheduleCourse[] = [
   {
     id: "1",
     code: "MAC2313",
     online: false,
+    courseId: "test",
 
-    time: {
-      days: ["Mon", "Wed"],
-      start: 0,
-      end: 3,
-      display: "",
-    },
+    meetings: [
+      {
+        time: {
+          days: ["Mon", "Wed"],
+          start: DateTime.fromFormat("12:00 AM", formatString, dateTimeOpts),
+          end: DateTime.fromFormat("3:00 AM", formatString, dateTimeOpts),
+          display: "",
+        },
 
-    location: {
-      building: "LIT",
-      room: "100",
-      display: "LIT 100",
-    },
+        location: {
+          building: "LIT",
+          room: "100",
+          display: "LIT 100",
+        },
+      },
+    ],
 
     color: {
       bg: "#fff7ed",
@@ -32,19 +43,24 @@ const courses: ScheduleCourse[] = [
     id: "2",
     code: "TEST2",
     online: false,
+    courseId: "test",
 
-    time: {
-      days: ["Mon", "Wed"],
-      start: 5,
-      end: 8,
-      display: "",
-    },
+    meetings: [
+      {
+        time: {
+          days: ["Mon", "Wed"],
+          start: DateTime.fromFormat("6:00 AM", formatString, dateTimeOpts),
+          end: DateTime.fromFormat("8:00 AM", formatString, dateTimeOpts),
+          display: "",
+        },
 
-    location: {
-      building: "LIT",
-      room: "100",
-      display: "LIT 100",
-    },
+        location: {
+          building: "LIT",
+          room: "100",
+          display: "LIT 100",
+        },
+      },
+    ],
 
     color: {
       bg: "#fff7ed",
@@ -57,19 +73,24 @@ const courses: ScheduleCourse[] = [
     id: "3",
     code: "TEST3",
     online: false,
+    courseId: "test",
 
-    time: {
-      days: ["Mon", "Wed"],
-      start: 15,
-      end: 16,
-      display: "",
-    },
+    meetings: [
+      {
+        time: {
+          days: ["Mon", "Wed"],
+          start: DateTime.fromFormat("2:00 PM", formatString, dateTimeOpts),
+          end: DateTime.fromFormat("3:00 PM", formatString, dateTimeOpts),
+          display: "",
+        },
 
-    location: {
-      building: "LIT",
-      room: "100",
-      display: "LIT 100",
-    },
+        location: {
+          building: "LIT",
+          room: "100",
+          display: "LIT 100",
+        },
+      },
+    ],
 
     color: {
       bg: "#fff7ed",
@@ -82,19 +103,24 @@ const courses: ScheduleCourse[] = [
     id: "4",
     code: "TEST4",
     online: false,
+    courseId: "test",
 
-    time: {
-      days: ["Mon", "Wed"],
-      start: 1,
-      end: 3,
-      display: "",
-    },
+    meetings: [
+      {
+        time: {
+          days: ["Mon", "Wed"],
+          start: DateTime.fromFormat("1:00 AM", formatString, dateTimeOpts),
+          end: DateTime.fromFormat("3:00 AM", formatString, dateTimeOpts),
+          display: "",
+        },
 
-    location: {
-      building: "LIT",
-      room: "100",
-      display: "LIT 100",
-    },
+        location: {
+          building: "LIT",
+          room: "100",
+          display: "LIT 100",
+        },
+      },
+    ],
 
     color: {
       bg: "#fff7ed",
@@ -107,19 +133,24 @@ const courses: ScheduleCourse[] = [
     id: "5",
     code: "TEST5",
     online: false,
+    courseId: "test",
 
-    time: {
-      days: ["Mon", "Wed"],
-      start: 15,
-      end: 17,
-      display: "",
-    },
+    meetings: [
+      {
+        time: {
+          days: ["Mon", "Wed"],
+          start: DateTime.fromFormat("3:00 PM", formatString, dateTimeOpts),
+          end: DateTime.fromFormat("5:00 PM", formatString, dateTimeOpts),
+          display: "",
+        },
 
-    location: {
-      building: "LIT",
-      room: "100",
-      display: "LIT 100",
-    },
+        location: {
+          building: "LIT",
+          room: "100",
+          display: "LIT 100",
+        },
+      },
+    ],
 
     color: {
       bg: "#fff7ed",
@@ -134,6 +165,7 @@ const onlineCourses: ScheduleCourse[] = [
     id: "3",
     code: "ENT3003",
     online: true,
+    courseId: "test",
 
     color: {
       bg: "#f0fdf4",
@@ -145,6 +177,7 @@ const onlineCourses: ScheduleCourse[] = [
     id: "4",
     code: "MAC2023",
     online: true,
+    courseId: "test",
 
     color: {
       bg: "#f0fdf4",
@@ -156,18 +189,18 @@ const onlineCourses: ScheduleCourse[] = [
 
 describe("time range", () => {
   test("correctly finds earliest course start time", () => {
-    const timeRange = getStartingAndEndingCourseTimes(courses);
-    expect(timeRange.start).toBe(0);
+    const timeInterval = getStartingAndEndingCourseTimes(courses, 0);
+    expect(timeInterval.start?.hour).toBe(0);
   });
 
   test("correctly finds latest course end time", () => {
-    const timeRange = getStartingAndEndingCourseTimes(courses);
-    expect(timeRange.end - timeRange.extraRange).toBe(17);
+    const timeInterval = getStartingAndEndingCourseTimes(courses, 0);
+    expect(timeInterval.end?.hour).toBe(17);
   });
 
   test("handles only online classes", () => {
-    const timeRange = getStartingAndEndingCourseTimes(onlineCourses);
-    expect(timeRange.start).toBe(Infinity);
-    expect(timeRange.end).toBe(-Infinity);
+    const timeInterval = getStartingAndEndingCourseTimes(onlineCourses, 0);
+    expect(timeInterval.start?.hour).toBe(0);
+    expect(timeInterval.end?.hour).toBe(23);
   });
 });

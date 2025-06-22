@@ -1,4 +1,4 @@
-import type { ScheduleCourse } from "@/features/_shared/types";
+import type { ScheduleCourse } from "@/types";
 
 type OnlineSectionProps = {
   courses: ScheduleCourse[];

@@ -1,15 +1,84 @@
 import { useState } from "react";
-import { AddCourseDialog } from "./add-course-dialog";
+import { AddCourseDialog } from "@/components/add-course-dialog";
 import { X } from "lucide-react";
 import { Calendar } from "@/features/schedule/components/calendar";
 import { getStartingAndEndingCourseTimes } from "@/features/schedule/components/calendar/utils";
+import type { ScheduleBlock, DayOfWeek } from "@/types";
+import { DateTime } from "luxon";
+
+const daysMap: Record<string, DayOfWeek> = {
+  M: "Mon",
+  T: "Tue",
+  W: "Wed",
+  R: "Thu",
+  F: "Fri",
+};
 
 const Builder = () => {
   const [showAddCourseDialog, setShowAddCourseDialog] = useState(false);
   const [coursesPicked, setCoursesPicked] = useState<string[]>([]);
+  const [excludedBlocks, setExcludedBlocks] = useState<ScheduleBlock[]>([]);
+  const [excludedDays, setExcludedDays] = useState<DayOfWeek[]>([]);
 
   const removePickedCourse = (code: string) => {
     setCoursesPicked((prev) => prev.filter((c) => c !== code));
+  };
+
+  const onExcludeDaySelect = (day: string) => {
+    const _excludedDays = [...excludedDays];
+    const index = _excludedDays.findIndex((_day) => _day === daysMap[day]);
+
+    if (index !== -1) {
+      _excludedDays.splice(index, 1);
+      const _excludedBlocks = [...excludedBlocks];
+
+      for (let i = 0; i < 24; i++) {
+        const index = _excludedBlocks.findIndex(
+          (_block) => _block.day === daysMap[day] && _block.start.hour === i,
+        );
+
+        if (index !== -1) {
+          _excludedBlocks.splice(index, 1);
+        }
+      }
+
+      setExcludedBlocks(_excludedBlocks);
+    } else {
+      _excludedDays.push(daysMap[day]);
+
+      const _excludedBlocks = [...excludedBlocks];
+      for (let i = 0; i < 24; i++) {
+        const index = _excludedBlocks.findIndex(
+          (_block) => _block.day === daysMap[day] && _block.start.hour === i,
+        );
+
+        if (index === -1) {
+          _excludedBlocks.push({
+            day: daysMap[day],
+            start: DateTime.fromFormat(`${i}:00`, "H:mm", { zone: "utc" }),
+          });
+        }
+      }
+
+      setExcludedBlocks(_excludedBlocks);
+    }
+
+    setExcludedDays(_excludedDays);
+  };
+
+  const onExcludeBlockSelect = (block: ScheduleBlock) => {
+    const _excludedBlocks = [...excludedBlocks];
+    const index = _excludedBlocks.findIndex(
+      (_block) => _block.day === block.day && _block.start.equals(block.start),
+    );
+
+    if (index !== -1) {
+      _excludedBlocks.splice(index, 1);
+    } else {
+      _excludedBlocks.push({ ...block });
+    }
+
+    setExcludedBlocks(_excludedBlocks);
   };
 
   return (
@@ -22,7 +91,7 @@ const Builder = () => {
           ➕ New Course
         </button>
 
-        <div className="max-w-50">
+        <div className="max-w-60">
           {coursesPicked.map((courseCode) => (
             <div
               className="p-2 bg-slate-200 rounded-md flex justify-between mb-2"
@@ -50,7 +119,7 @@ const Builder = () => {
                   <label>
                     <input
                       type="checkbox"
-                      //   onChange={() => onExcludeDays(daysMap[day])}
+                      onChange={() => onExcludeDaySelect(day)}
                     />
                   </label>
                   <p className="pb-1">{day}</p>
@@ -64,12 +133,23 @@ const Builder = () => {
           <p>Exclude times: </p>
           <Calendar
             courses={[]}
-            timeRange={getStartingAndEndingCourseTimes([])}
+            timeIntervalToRender={getStartingAndEndingCourseTimes([])}
             compact
             tiny
+            onBlockSelected={(block) => onExcludeBlockSelect(block)}
+            highlightedBlocks={excludedBlocks}
           />
         </div>
       </div>
+
+      <button
+        onClick={() => {
+          console.log(excludedBlocks);
+          console.log(excludedDays);
+        }}
+      >
+        Log state
+      </button>
 
       <AddCourseDialog
         isOpen={showAddCourseDialog}

@@ -1,47 +1,58 @@
-import type { ScheduleCourse } from "@/features/_shared/types";
+import type { ScheduleCourse } from "@/types";
+import { DateTime, Interval } from "luxon";
 
-export const getStartingAndEndingCourseTimes = (courses: ScheduleCourse[]) => {
+const dateTimeOpts = {
+  zone: "utc",
+};
+
+export const getStartingAndEndingCourseTimes = (
+  courses: ScheduleCourse[],
+  extraRange = 1,
+) => {
   if (courses.length === 0) {
-    return {
-      start: 0,
-      end: 23,
-      extraRange: 0,
-    };
+    return Interval.fromDateTimes(
+      DateTime.fromFormat("0:00", "H:mm", dateTimeOpts),
+      DateTime.fromFormat("24:00", "H:mm", dateTimeOpts),
+    );
   }
 
-  const extraRange = 1;
-  let startingTime = Infinity;
-  let endingTime = -Infinity;
+  let startingTime = DateTime.fromFormat("24:00", "H:mm", dateTimeOpts);
+  let endingTime = DateTime.fromFormat("0:00", "H:mm", dateTimeOpts);
+
+  let modified = false;
 
   courses.forEach((course) => {
     if (course.online) {
       return;
     }
 
-    if (course.time.start < startingTime) {
-      startingTime = course.time.start;
-    }
+    course.meetings.forEach((meeting) => {
+      if (meeting.time.start < startingTime) {
+        modified = true;
+        startingTime = meeting.time.start;
+      }
 
-    if (course.time.end > endingTime) {
-      endingTime = course.time.end;
-    }
+      if (meeting.time.end > endingTime) {
+        modified = true;
+        endingTime = meeting.time.end;
+      }
+    });
   });
 
-  return {
-    start: startingTime === 0 ? 0 : startingTime - extraRange,
-    end: endingTime === 23 ? 23 : endingTime + extraRange,
-    extraRange,
-  };
-};
-
-export function convertMilitaryToStandard(militaryTime: number) {
-  if (militaryTime < 0 || militaryTime > 23) {
-    // return "Invalid time value";
-    throw new Error(`Invalid military time value: ${militaryTime}`);
+  if (!modified) {
+    // this is to make sure that starting time is before ending time
+    return Interval.fromDateTimes(
+      DateTime.fromFormat("0:00", "H:mm", dateTimeOpts),
+      DateTime.fromFormat("24:00", "H:mm", dateTimeOpts),
+    );
   }
 
-  const period = militaryTime >= 12 ? "PM" : "AM";
-  const standardHour = militaryTime % 12 || 12; // convert 0 to 12 for 12AM, and 13–23 to 1–11 PM
-
-  return `${standardHour} ${period}`;
-}
+  return Interval.fromDateTimes(
+    startingTime.hour === 0
+      ? startingTime
+      : startingTime.minus({ hour: extraRange }).set({ minute: 0 }),
+    endingTime.hour === 23
+      ? endingTime
+      : endingTime.plus({ hour: extraRange }).set({ minute: 0 }),
+  );
+};

@@ -1,78 +1,134 @@
 import { forwardRef } from "react";
 import { DaysHeader } from "./days-header";
 import { Block } from "./block";
-import { HoursHeader, type TimeRange } from "./hours-header";
+import { HoursHeader } from "./hours-header";
 import { NUM_HOURS_PER_DAY, WEEK_DAYS } from "./constants";
-import { CourseBlock } from "./course-block";
-import type { InPersonCourse, ScheduleCourse } from "@/features/_shared/types";
+import { MeetingBlock } from "./meeting-block";
+import type { InPersonCourse, ScheduleCourse, ScheduleBlock } from "@/types";
 import { OnlineSection } from "./online-section";
 import "./styles.css";
 import clsx from "clsx";
+import { DateTime, Interval } from "luxon";
 
 type CalendarProps = {
   courses: ScheduleCourse[];
-  timeRange: TimeRange;
+  timeIntervalToRender?: Interval;
+  highlightedBlocks?: ScheduleBlock[];
   compact?: boolean;
   tiny?: boolean;
+  onBlockSelected?: (block: ScheduleBlock) => void;
 };
 
 type HeaderProps = {
-  timeRange: TimeRange;
+  timeIntervalToRender?: Interval;
   tiny?: boolean;
 };
 
 type BlocksProps = {
-  timeRange: TimeRange;
   courses: ScheduleCourse[];
+  timeIntervalToRender?: Interval;
+  highlightedBlocks?: CalendarProps["highlightedBlocks"];
   compact?: boolean;
+  onBlockSelected?: CalendarProps["onBlockSelected"];
 };
 
-const Header = ({ timeRange, tiny }: HeaderProps) => {
+const Header = ({ timeIntervalToRender, tiny }: HeaderProps) => {
   return (
     <>
-      <HoursHeader timeRange={timeRange} />
+      <HoursHeader timeIntervalToRender={timeIntervalToRender} />
       <DaysHeader tiny={tiny} />
     </>
   );
 };
 
-const Blocks = ({ courses, timeRange, compact = false }: BlocksProps) => {
+const Blocks = ({
+  courses,
+  timeIntervalToRender,
+  highlightedBlocks,
+  compact = false,
+  onBlockSelected,
+}: BlocksProps) => {
   // TODO: refactor and make it configurable
-  const courseTimes: number[] = [];
+  const courseIntervals: Interval[] = [];
 
   if (compact) {
     courses.forEach((course) => {
       if (!course.online) {
-        const courseLength = course.time.end - course.time.start;
+        course.meetings.forEach((meeting) => {
+          let endTime = meeting.time.end;
+          if (meeting.time.end.minute > 0) {
+            endTime = endTime.plus({ hour: 1 });
+          }
+          const interval = Interval.fromDateTimes(
+            meeting.time.start.set({ minute: 0 }),
+            endTime.set({ minute: 0 }),
+          );
 
-        for (let i = 0; i < courseLength; i++) {
-          courseTimes.push(course.time.start + i);
-        }
+          courseIntervals.push(interval);
+        });
       }
     });
+
+    console.log(courseIntervals);
+  }
+
+  if (!timeIntervalToRender) {
+    return null;
   }
 
   const blocks = Array.from(
     { length: WEEK_DAYS.length * NUM_HOURS_PER_DAY },
     (_, idx) => {
       // the combination of the period start and day are unique for every classes
-      const hour = idx % NUM_HOURS_PER_DAY;
       const day = WEEK_DAYS[idx % WEEK_DAYS.length];
-
-      const course = courses.find(
-        (c): c is InPersonCourse =>
-          !c.online && c.time.start === hour && c.time.days.includes(day),
+      const hour = DateTime.fromFormat(
+        `${idx % NUM_HOURS_PER_DAY}:00`,
+        "H:mm",
+        {
+          zone: "utc",
+        },
       );
 
-      if (hour >= timeRange.start && hour <= timeRange.end) {
+      let meetingInfo;
+      const course = courses.find((c): c is InPersonCourse => {
+        if (!c.online) {
+          meetingInfo = c.meetings.find((meeting) => {
+            return (
+              meeting.time.start.hour === hour.hour &&
+              meeting.time.days.includes(day)
+            );
+          });
+
+          return !!meetingInfo;
+        }
+
+        return false;
+      });
+
+      if (timeIntervalToRender.contains(hour)) {
         return (
           <Block
             key={idx}
-            hour={hour}
+            startHour={hour}
             day={day}
-            collapsed={compact && courseTimes.indexOf(hour) === -1}
+            collapsed={
+              compact &&
+              !courseIntervals.find((interval) => interval.contains(hour))
+            }
+            onBlockSelected={onBlockSelected}
+            highlighted={
+              !!highlightedBlocks?.find(
+                (block) => block.day === day && block.start.equals(hour),
+              )
+            }
           >
-            {course && <CourseBlock course={course} />}
+            {course && meetingInfo && (
+              <MeetingBlock
+                course={course}
+                meetingInfo={meetingInfo}
+                compact={compact}
+              />
+            )}
           </Block>
         );
       }
@@ -83,20 +139,36 @@ const Blocks = ({ courses, timeRange, compact = false }: BlocksProps) => {
 };
 
 const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
-  ({ courses, timeRange, compact, tiny }, ref) => {
+  (
+    {
+      courses,
+      timeIntervalToRender,
+      highlightedBlocks,
+      compact,
+      tiny,
+      onBlockSelected,
+    },
+    ref,
+  ) => {
     return (
       <div
         // className="mx-auto"
         style={{
-          maxWidth: compact ? "600px" : "900px",
+          maxWidth: compact ? "700px" : "900px",
         }}
       >
         <div
           className={clsx("calendar-grid w-full text-sm", tiny && "tiny")}
           ref={ref}
         >
-          <Header timeRange={timeRange} tiny={tiny} />
-          <Blocks courses={courses} timeRange={timeRange} compact={compact} />
+          <Header timeIntervalToRender={timeIntervalToRender} tiny={tiny} />
+          <Blocks
+            courses={courses}
+            timeIntervalToRender={timeIntervalToRender}
+            highlightedBlocks={highlightedBlocks}
+            compact={compact}
+            onBlockSelected={onBlockSelected}
+          />
         </div>
 
         <OnlineSection courses={courses} />

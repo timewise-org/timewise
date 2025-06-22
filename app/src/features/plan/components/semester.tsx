@@ -1,4 +1,4 @@
-import type { Course } from "@/features/_shared/types";
+import type { Course } from "@/types";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 

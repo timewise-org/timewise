@@ -1,4 +1,4 @@
-import type { DayOfWeek } from "@/features/_shared/types";
+import type { DayOfWeek } from "@/types";
 
 const WEEK_DAYS: DayOfWeek[] = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 // @ts-ignore

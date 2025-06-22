@@ -1,6 +1,6 @@
-import type { FourYearPlan } from "@/features/_shared/types";
+import type { FourYearPlan } from "@/types";
 import { useState } from "react";
-import { AddCourseDialog } from "./add-course-dialog";
+import { AddCourseDialog } from "@/components/add-course-dialog";
 import { Year } from "./year";
 
 type PlanProps = {

@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Calendar } from "../calendar";
 import { getStartingAndEndingCourseTimes } from "../utils";
-import type { ScheduleCourse } from "@/features/_shared/types";
+import type { ScheduleCourse } from "@/types";
+import { DateTime } from "luxon";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -13,24 +14,33 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const formatString = "h:mm a";
+const dateTimeOpts = {
+  zone: "utc",
+};
+
 const courses: ScheduleCourse[] = [
   {
     id: "1",
     code: "MAC2313",
+    courseId: "test",
     online: false,
+    meetings: [
+      {
+        time: {
+          days: ["Mon", "Wed"],
+          start: DateTime.fromFormat("8:20 AM", formatString, dateTimeOpts),
+          end: DateTime.fromFormat("9:20 AM", formatString, dateTimeOpts),
+          display: "8:30AM - 10:00AM",
+        },
 
-    time: {
-      days: ["Mon", "Wed"],
-      start: 3,
-      end: 5,
-      display: "9AM - 10AM",
-    },
-
-    location: {
-      building: "LIT",
-      room: "100",
-      display: "LIT 100",
-    },
+        location: {
+          building: "LIT",
+          room: "100",
+          display: "LIT 100",
+        },
+      },
+    ],
 
     color: {
       bg: "#fff7ed",
@@ -42,19 +52,38 @@ const courses: ScheduleCourse[] = [
     id: "2",
     code: "COP3503",
     online: false,
+    courseId: "test",
 
-    time: {
-      days: ["Tue", "Thu"],
-      start: 15,
-      end: 17,
-      display: "3PM - 5PM",
-    },
+    meetings: [
+      {
+        time: {
+          days: ["Tue", "Thu"],
+          start: DateTime.fromFormat("3:00 PM", formatString, dateTimeOpts),
+          end: DateTime.fromFormat("4:00 PM", formatString, dateTimeOpts),
+          display: "3PM - 4PM",
+        },
 
-    location: {
-      building: "CAR",
-      room: "100",
-      display: "CAR 100",
-    },
+        location: {
+          building: "LIT",
+          room: "100",
+          display: "LIT 100",
+        },
+      },
+      {
+        time: {
+          days: ["Fri"],
+          start: DateTime.fromFormat("6:00 PM", formatString, dateTimeOpts),
+          end: DateTime.fromFormat("8:00 PM", formatString, dateTimeOpts),
+          display: "6PM - 8PM",
+        },
+
+        location: {
+          building: "LIT",
+          room: "100",
+          display: "LIT 100",
+        },
+      },
+    ],
 
     color: {
       bg: "#fff1f2",
@@ -65,6 +94,7 @@ const courses: ScheduleCourse[] = [
   {
     id: "3",
     code: "ENT3003",
+    courseId: "test",
     online: true,
 
     color: {
@@ -77,6 +107,8 @@ const courses: ScheduleCourse[] = [
   {
     id: "4",
     code: "EGN3032",
+    courseId: "test",
+
     online: true,
     color: {
       bg: "#f5f3ff",
@@ -90,7 +122,7 @@ const courses: ScheduleCourse[] = [
 export const OnlineAndInPersonCourses: Story = {
   args: {
     courses,
-    timeRange: getStartingAndEndingCourseTimes(courses),
+    timeIntervalToRender: getStartingAndEndingCourseTimes(courses),
   },
 };
 
@@ -98,6 +130,7 @@ const onlineCourses: ScheduleCourse[] = [
   {
     id: "3",
     code: "ENT3003",
+    courseId: "test",
     online: true,
 
     color: {
@@ -110,6 +143,8 @@ const onlineCourses: ScheduleCourse[] = [
   {
     id: "4",
     code: "EGN3032",
+    courseId: "test",
+
     online: true,
     color: {
       bg: "#f5f3ff",
@@ -122,14 +157,14 @@ const onlineCourses: ScheduleCourse[] = [
 export const OnlineCourses: Story = {
   args: {
     courses: onlineCourses,
-    timeRange: getStartingAndEndingCourseTimes(onlineCourses),
+    timeIntervalToRender: undefined,
   },
 };
 
 export const CompactSchedule: Story = {
   args: {
     courses,
-    timeRange: getStartingAndEndingCourseTimes(courses),
+    timeIntervalToRender: getStartingAndEndingCourseTimes(courses),
     compact: true,
   },
 };
@@ -137,7 +172,7 @@ export const CompactSchedule: Story = {
 export const TinySchedule: Story = {
   args: {
     courses: [],
-    timeRange: getStartingAndEndingCourseTimes([]),
+    timeIntervalToRender: getStartingAndEndingCourseTimes([]),
     tiny: true,
     compact: true,
   },

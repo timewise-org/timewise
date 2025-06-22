@@ -1,10 +1,11 @@
-import { Modal } from "@/components/modal";
+import Modal from "@/components/modal";
 import { SearchIcon } from "@/components/icons/search-icon";
 import { Input } from "@headlessui/react";
 import clsx from "clsx";
-import type { Course } from "@/features/_shared/types";
+import type { Course } from "@/types";
 import { useState } from "react";
 import { SearchResult } from "./search-result";
+import { Dialog } from "@base-ui-components/react/dialog";
 
 type SearchProps = {
   isOpen: boolean;
@@ -104,7 +105,7 @@ function AddCourseDialog({ isOpen, toggle, onAddCourse }: SearchProps) {
     <Modal isOpen={isOpen} toggle={toggle}>
       <>
         <div className="p-2 space-y-3">
-          <p>Pick a course</p>
+          <Dialog.Title>Spring 2025</Dialog.Title>
           <div className="flex items-center rounded-md px-1 border-1">
             <SearchIcon />
             <Input

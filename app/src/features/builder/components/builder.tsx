@@ -81,6 +81,8 @@ const Builder = () => {
     setExcludedBlocks(_excludedBlocks);
   };
 
+  const onBuild = () => {};
+
   return (
     <div>
       <div className="h-76 border-1 rounded-md w-60 py-2 px-3 overflow-y-auto">
@@ -150,6 +152,8 @@ const Builder = () => {
       >
         Log state
       </button>
+
+      <button onClick={onBuild}>Build Schedule</button>
 
       <AddCourseDialog
         isOpen={showAddCourseDialog}

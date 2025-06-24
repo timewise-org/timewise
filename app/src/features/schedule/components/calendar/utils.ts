@@ -43,7 +43,7 @@ export const getStartingAndEndingCourseTimes = (
     // this is to make sure that starting time is before ending time
     return Interval.fromDateTimes(
       DateTime.fromFormat("0:00", "H:mm", dateTimeOpts),
-      DateTime.fromFormat("24:00", "H:mm", dateTimeOpts),
+      DateTime.fromFormat("23:00", "H:mm", dateTimeOpts),
     );
   }
 

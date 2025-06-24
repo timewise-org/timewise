@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils";
 import {
   flexRender,
   getCoreRowModel,
@@ -54,7 +54,7 @@ const RenameComp = forwardRef<HTMLInputElement, any>(
         />
       </div>
     );
-  }
+  },
 );
 
 type TableHeaderProps = {
@@ -104,7 +104,7 @@ const TableHeader = ({
           "pl-1":
             header.id !== "addColumn" &&
             !header.column.columnDef.meta?.isNewColumn,
-        }
+        },
       )}
       style={{
         width: header.getSize(),
@@ -153,7 +153,7 @@ const TableHeader = ({
                 table.options.meta?.updateHeader(
                   header.index,
                   header.id,
-                  value
+                  value,
                 );
               }}
             />
@@ -251,7 +251,7 @@ export const Table = ({
               };
             }
             return row;
-          })
+          }),
         );
       },
       updateHeader: (colIndex, colId, value) => {
@@ -269,7 +269,7 @@ export const Table = ({
                 };
               }
               return col;
-            })
+            }),
           );
       },
       removeColumn: (colIndex) => {
@@ -277,7 +277,7 @@ export const Table = ({
           setColumns((old) =>
             old.filter((_, index) => {
               return index !== colIndex;
-            })
+            }),
           );
       },
     },

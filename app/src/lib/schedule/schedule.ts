@@ -1,11 +1,11 @@
-import type { DateTime } from "luxon";
+import { DateTime } from "luxon";
 import { Interval } from "luxon";
 import { PhysicalCourse, OnlineCourse } from "./course";
-import type { DayOfWeek, ISchedule, IScheduleBlock } from "./types";
+import type { DayOfWeek } from "./types";
 
 export type Course = PhysicalCourse | OnlineCourse;
 
-export class Schedule implements ISchedule {
+export class Schedule {
   courses: Course[] = [];
 
   constructor(courses: Course[]) {
@@ -41,15 +41,50 @@ export class Schedule implements ISchedule {
     }
     return true;
   }
+
+  equals(otherSchedule: Schedule): boolean {
+    const courses = this.getCourses();
+    const otherCourses = otherSchedule.getCourses();
+
+    if (courses.length !== otherCourses.length) return false;
+
+    for (const course of courses) {
+      let found = false;
+
+      for (const otherCourse of otherCourses) {
+        if (this.coursesAreEqual(course, otherCourse)) {
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) return false;
+    }
+
+    return true;
+  }
+
+  private coursesAreEqual(a: Course, b: Course): boolean {
+    if (a instanceof PhysicalCourse && b instanceof PhysicalCourse) {
+      return a.equals(b);
+    }
+    if (a instanceof OnlineCourse && b instanceof OnlineCourse) {
+      return a.equals(b);
+    }
+    return false;
+  }
 }
 
-export class ScheduleBlock implements IScheduleBlock {
+export class ScheduleBlock {
   day: DayOfWeek;
   start: DateTime;
 
-  constructor(data: { day: DayOfWeek; start: DateTime }) {
+  constructor(data: { day: DayOfWeek; start: DateTime | string }) {
     this.day = data.day;
-    this.start = data.start;
+    this.start =
+      typeof data.start === "string"
+        ? DateTime.fromFormat(data.start, "h:mm a", { zone: "utc" })
+        : data.start;
   }
 
   getTimeInterval(): Interval {

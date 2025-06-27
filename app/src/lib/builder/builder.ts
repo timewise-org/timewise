@@ -1,4 +1,4 @@
-import { Schedule, type Course } from "../schedule";
+import { Schedule, ScheduleBlock, type Course } from "../schedule";
 
 export class Builder {
   constructor() {}
@@ -7,7 +7,7 @@ export class Builder {
     courses: Course[],
     chosenCourseCodes: string[],
     filters: {
-      excludedBlocks: any[];
+      excludedBlocks: ScheduleBlock[];
       excludeOnlineCourses: boolean;
     },
   ): {
@@ -15,7 +15,7 @@ export class Builder {
     totalCombos: number;
     validCombos: number;
   } {
-    let validSchedules: Schedule[] = [];
+    let validSchedules: Schedule[] = [undefined!];
 
     // Initialize course groupings by their course codes
     const courseGroupings: Record<string, Course[]> = {};
@@ -45,7 +45,9 @@ export class Builder {
         }
 
         for (const schedule of validSchedules) {
-          const newSchedule = new Schedule([...schedule.getCourses(), course]);
+          const newSchedule = !schedule
+            ? new Schedule([course]) // accounts for the first iteration of the loop
+            : new Schedule([...schedule.getCourses(), course]);
 
           if (newSchedule.isValid()) {
             temp.push(newSchedule);
